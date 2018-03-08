@@ -1,5 +1,5 @@
 cc_library(
     name = "bst",
     hdrs = ["bst.h"],
-    visibility = ["//main:__pkg__"],
+    visibility = ["//visibility:public"],
 )
