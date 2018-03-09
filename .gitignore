@@ -1,9 +1,10 @@
 # Bazel
 bazel-*
 
-#clion 
+#ide's and build
 cmake-build-debug
 .idea
+.vscode
 
 #gedit garbage
 *~

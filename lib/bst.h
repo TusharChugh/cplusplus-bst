@@ -1,7 +1,7 @@
 #pragma once
 
-#include <memory>
-#include <functional>
+#include "bst_node.h"
+#include "bst_iterator.h"
 
 namespace tlib {
     /**
@@ -12,24 +12,24 @@ namespace tlib {
      * @tparam std::allocator<__Key> Allocator to store the keys in the bst
      */
     template <
-        typename __Key, 
-        typename __Compare = std::less<__Key>,
-        typename __Allocator = std::allocator<__Key>
+    class Key_, 
+    class Compare_ = std::less<Key_>,
+    class Allocator_ = std::allocator<Key_>
     > class bst {
-        
+        struct BSTNode;
         public:
-            using key_type = __Key;
-            using value_type = __Key;
-            using size_type = typename __Allocator::size_type;
-            using difference_type = typename __Allocator::difference_type;
-            using key_compare = __Compare;
-            using value_compare = __Compare;
-            using allocator_type = __Allocator;        
+            using key_type = Key_;
+            using value_type = Key_;
+            using size_type = typename Allocator_::size_type;
+            using difference_type = typename Allocator_::difference_type;
+            using key_compare = Compare_;
+            using value_compare = Compare_;
+            using allocator_type = Allocator_;        
             using reference = value_type&;
             using const_reference = const value_type&;
-            using pointer = typename std::allocator_traits<__Allocator>::pointer;
-            using const_pointer = typename std::allocator_traits<__Allocator>::const_pointer;
-            //using iterator = tlib::forward_tlist_iterator<list_type, pointer, reference >;
+            using pointer = typename std::allocator_traits<Allocator_>::pointer;
+            using const_pointer = typename std::allocator_traits<Allocator_>::const_pointer;
+            using const_iterator = tlib::bst_iterator<key_type, key_compare, const_pointer, const_reference>;
             //using const_iterator = tlib::forward_tlist_iterator<list_type, const_pointer, const_reference>;
     
             //Insert elements
@@ -40,18 +40,20 @@ namespace tlib {
            // iterator find(key_type const & x) const;
 
             //Constructors
+            /**
+             * @brief Construct a new bst object
+             *  Default constructor
+             */
+            bst();
+
+            size_t size() const;
 
         private:
-        struct BSTNode;
-        using node = typename std::shared_ptr<BSTNode>;
-        struct BSTNode {
-            key_type key_;
-            node left_;
-            node right_;
-            node parent_;
-            BSTNode(const_reference key) : key_(key), left_(nullptr), right_(nullptr), parent_(nullptr) {}
-        };
-        
+            using iterator = tlib::bst_iterator<key_type, key_compare, pointer, reference>;
+            using node = bst_node<key_type>*;
+            
+            node root;
+            size_t size_ = 0;
     };
 }
 
