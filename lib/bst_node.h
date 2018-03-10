@@ -13,8 +13,7 @@ namespace tlib {
     > class bst;
     
     template<
-    class Key_, 
-    class Compare_, 
+    class bst_t_, 
     class pointer_,
     class reference_
     > class bst_iterator;
@@ -39,7 +38,8 @@ namespace tlib {
             using reference = value_type&;
             using const_reference = const value_type&;
             using pointer = typename std::allocator_traits<Allocator_>::pointer;
-            using const_pointer = typename std::allocator_traits<Allocator_>::const_pointer;  
+            using const_pointer = typename std::allocator_traits<Allocator_>::const_pointer;
+            using bst_type = bst<key_type, key_compare, allocator_type>;  
             using node = bst_node<key_type>*;
             
             /**
@@ -50,17 +50,17 @@ namespace tlib {
              * @param right pointer to the right of the node
              * @param parent pointer to the parent of the node
              */
-            bst_node(const_reference key, node left, node right, node parent) : 
-                key_(key), left_(left = nullptr), 
-                right_(right = nullptr), parent_(parent = nullptr) {};
+            bst_node(const_reference key, 
+                node left = nullptr, node right = nullptr, node parent = nullptr) : 
+                key_(key), left_(left), right_(right), parent_(parent) {};
 
             //bst 
             friend class bst<key_type, key_compare, allocator_type>;
 
             //bst_iterator class need to access the private of the nodes
-            friend class bst_iterator<key_type, key_compare, pointer, reference>;
+            friend class bst_iterator<bst_type, pointer, reference>;
 
-            friend class bst_iterator<key_type, key_compare, const_pointer, const_reference>;
+            friend class bst_iterator<bst_type, const_pointer, const_reference>;
 
             /**
              * @brief Destroy the bst node object
