@@ -2,6 +2,7 @@
 
 ## Bazel build instructions
 1. Configuring google tests: https://docs.bazel.build/versions/master/cpp-use-cases.html
+Build the code: bazel build //test:bst-test
 
 ## C++ Iterators
 1. Use bidiectional iterators
