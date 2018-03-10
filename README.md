@@ -8,6 +8,11 @@
 ## More on bazel
 1. Configuring google tests: https://docs.bazel.build/versions/master/cpp-use-cases.html
 
+## Tested Environment
+1. OS: Ubuntu 14.04
+2. GCC version: 6.3.0-18
+3. C++ version: > 11
+
 2. More of gtest and bazel: https://docs.bazel.build/versions/master/test-encyclopedia.html
 
 ## C++ reference
