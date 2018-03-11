@@ -22,9 +22,12 @@
 1. Use bidiectional iterators
 2. Two option to implement ++ operator with iterator (a. use of queue b. use parent pointer). 
 
- ## ToDo's
- 1. Implement the basic api functions
- 2. Add copy, move, swap, destructor to the bst class
+ ## ToDo's (in sequence)
+ 1. Implement insert
+ 2. Implement ++ for iterator
+ 3. test 1 and 2
+ 4. Implement begin and end functions
+ 5. Implement destructor, copy/move constructor and swap function
 
  ## Notes:
  1. C++ set implementation uses red-black trees

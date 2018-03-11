@@ -35,6 +35,12 @@ namespace tlib {
 
             bool operator!= (const bst_iterator& rhs) const;
 
+            const_reference operator* () const {
+                return (*pointee_).key_;
+            }
+
+            bst_iterator& operator++ ();
+
             bst_iterator operator++ (int);
 
             bst_iterator operator-- ();
@@ -58,8 +64,6 @@ namespace tlib {
              * 
              */
             explicit bst_iterator(const link_type& pointee): pointee_(pointee) {}
-
-
 
         };
 }

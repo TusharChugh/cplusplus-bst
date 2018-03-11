@@ -40,7 +40,7 @@ namespace tlib {
             using pointer = typename std::allocator_traits<Allocator_>::pointer;
             using const_pointer = typename std::allocator_traits<Allocator_>::const_pointer;
             using bst_type = bst<key_type, key_compare, allocator_type>;  
-            using node = bst_node<key_type>*;
+            using node_pointer = bst_node<key_type, key_compare, allocator_type>*;
             
             /**
              * @brief Construct a new bst node object
@@ -51,7 +51,9 @@ namespace tlib {
              * @param parent pointer to the parent of the node
              */
             bst_node(const_reference key, 
-                node left = nullptr, node right = nullptr, node parent = nullptr) : 
+                node_pointer left = nullptr, 
+                node_pointer right = nullptr, 
+                node_pointer parent = nullptr) : 
                 key_(key), left_(left), right_(right), parent_(parent) {};
 
             //bst 
@@ -69,9 +71,9 @@ namespace tlib {
             ~bst_node() = default;
 
             //Node defination
-            const key_type key_;
-            node left_;
-            node right_;
-            node parent_;
+            const_reference key_;
+            node_pointer left_;
+            node_pointer right_;
+            node_pointer parent_;
     };
 }

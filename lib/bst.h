@@ -51,14 +51,22 @@ namespace tlib {
 
             //Modifiers
             //Insert elements
-            std::pair<iterator, bool> insert(const value_type& value);
+            std::pair<iterator, bool> insert(const value_type& value) {
+                if(root_) std::cout<<"Before insertion "<<root_->key_<<std::endl;
+                node_pointer inserted_node = nullptr;
+                std::pair<node_pointer, bool> result = insert(root_, value, inserted_node);
+                if(result.second) size_++;
+                root_ = result.first;
+                std::cout<<"After insertion "<<root_->key_<<" "<<inserted_node->key_<<std::endl;
+                return std::make_pair(make_iterator(inserted_node), result.second);
+            }
 
             void clear() noexcept;
 
             //erase elements
             iterator erase(const_iterator pos);
             iterator erase(const_iterator first, const_iterator last);
-            size_type erase( const key_type& key );
+            size_type erase(const key_type& key);
 
             //Lookup
             //Find key
@@ -76,7 +84,13 @@ namespace tlib {
             explicit bst(const Compare_& comp = Compare_(), 
               const Allocator_& alloc = Allocator_()): 
                 compare_(comp), allocator_(alloc), size_(0), 
-                root_(new node_type(const_reference{})) {};
+                root_(nullptr) {};
+
+            //Destructors
+            ~bst() {
+                //TODO
+                //Can't use the default constructor. Need to delete the pointers recursively
+            }
 
         private:
 
@@ -94,50 +108,46 @@ namespace tlib {
             bst::const_iterator make_iterator(const node_pointer &node) const noexcept {
                 return const_iterator(node);
             }
-            // node create_node (const_reference key) {
-            //     auto allocated_key = allocator.allocate(ONE_NODE);
-            //     allocator_.construct(allocated_key, key);
-            //     auto new_node = new 
-            // }
+
+            node_pointer make_node(const_reference key) {
+                return new node_type(key);
+            }
+
+            node_pointer make_node(const_reference key, 
+                                    node_pointer left, 
+                                    node_pointer right, 
+                                    node_pointer parent) {
+                return new node_type(key, left, right, parent);
+            }
+            
+            std::pair<node_pointer, bool> insert(
+                node_pointer node, const_reference key, node_pointer& inserted_node) {
+                if(node == nullptr) {
+                    std::cout<<"Adding node at the end"<<std::endl;
+                    inserted_node = make_node(key);
+                    return std::make_pair(inserted_node, true);
+                }
+
+                int cmp = compare_(key, node->key_);
+                bool inserted = true;
+                if(cmp < 0) {
+                    auto left_info = insert(node->left_, key, inserted_node);
+                    node->left_ = left_info.first; 
+                } 
+                else if(cmp > 0) {
+                    auto right_info = insert(node->right_, key, inserted_node);
+                    node->right_ = right_info.first; 
+                }
+                else if(cmp == 0) {
+                    node_pointer temp = node;
+                    node = make_node(key, node->left_, node->right_, node->parent_);
+                    delete temp;
+                    inserted = true;
+                    inserted_node = node;
+                }
+                return std::make_pair(node, inserted);
+            }
+
     };
-
-    // template <
-    //     class Key_, 
-    //     class Compare_ = std::less<Key_>,
-    //     class Allocator_ = std::allocator<Key_>
-    //     >
-    // std::pair<iterator, bool> insert(const value_type& value) {
-    //     //If key is equal replace
-    //     root_ = insert(root, value);
-
-    // }
-
-    // template <
-    //     class Key_, 
-    //     class Compare_ = std::less<Key_>,
-    //     class Allocator_ = std::allocator<Key_>
-    //     >
-    // std::pair<iterator, bool> insert(node& root, const value_type& value) {
-    //     //If key is equal replace
-    //     return std::make_pair<iterator, bool> (nullptr, 0);
-    // }
-
-    // template <
-    //     class Key_, 
-    //     class Compare_ = std::less<Key_>,
-    //     class Allocator_ = std::allocator<Key_>
-    //     >
-    // iterator make_iterator(node_pointer &node) {
-    //         return iterator(node);
-    // }
-
-    // template <
-    //     class Key_, 
-    //     class Compare_ = std::less<Key_>,
-    //     class Allocator_ = std::allocator<Key_>
-    //     >
-    // bst::const_iterator make_iterator(const node_pointer &node) const noexcept {
-    //         return const_iterator(node);
-    // }
 }
 
