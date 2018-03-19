@@ -22,12 +22,15 @@
 1. Use bidiectional iterators
 2. Two option to implement ++ operator with iterator (a. use of queue b. use parent pointer). 
 
- ## ToDo's (in sequence)
+ ## ToDo's (not in sequence)
  1. Implement insert
  2. Implement ++ for iterator
- 3. test 1 and 2
- 4. Implement begin and end functions
+ 3. Implement begin and end functions
+ 4. test 1,2 and 3
  5. Implement destructor, copy/move constructor and swap function
+ 6. Allocator construct has been depricated in c++17. find the alternative
+ 7. Add google log and debug features
+ 8. Rebind with node type and remove new
 
  ## Notes:
  1. C++ set implementation uses red-black trees
