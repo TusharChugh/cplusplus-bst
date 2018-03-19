@@ -34,3 +34,6 @@
 
  ## Notes:
  1. C++ set implementation uses red-black trees
+ 2. https://stackoverflow.com/questions/2762568/c-c-include-file-order-best-practices
+
+ missing PIMPL idiom

@@ -13,8 +13,9 @@ namespace tlib {
  */
 template<class Key_, class Compare_ = std::less<Key_>, class Allocator_ = std::allocator<Key_>>
 class bst {
-    using node_type    = bst_node<Key_, Compare_, Allocator_>;
-    using node_pointer = bst_node<Key_, Compare_, Allocator_>*;
+    using node_type          = bst_node<Key_, Compare_, Allocator_>;
+    using node_pointer       = bst_node<Key_, Compare_, Allocator_>*;
+    using const_node_pointer = const bst_node<Key_, Compare_, Allocator_>*;
     using Node_Allocator_ =
         typename Allocator_::template rebind<bst_node<Key_, Compare_, Allocator_>>::other;
 
@@ -36,19 +37,25 @@ public:
     // Iterators
     // Begin
     iterator begin() noexcept {
-        return make_iterator( root_ );
+        return make_iterator( this->header_->left );
     }
     const_iterator begin() const noexcept {
-        return make_const_iterator( root_ );
+        return make_const_iterator( this->header_->left );
     }
     const_iterator cbegin() const noexcept {
-        return make_const_iterator( root_ );
+        return make_const_iterator( this->header_->left );
     }
 
     // End
-    iterator end() noexcept;
-    const_iterator end() const noexcept;
-    const_iterator cend() const noexcept;
+    iterator end() noexcept {
+        return make_iterator( this->header_ );
+    }
+    const_iterator end() const noexcept {
+        return make_const_iterator( this->header_ );
+    }
+    const_iterator cend() const noexcept {
+        return make_const_iterator( this->header_ );
+    }
 
     // Capacity
     inline bool empty() const noexcept {
@@ -61,47 +68,6 @@ public:
     // Modifiers
     // Insert elements. Make this as const iterator??
     iterator insert( const value_type& value );
-    // {
-    // if(root_) std::cout<<"Before insertion "<<root_->key_<<std::endl;
-    // node_pointer inserted_node = nullptr;
-    // bool newly_inserted = true;
-    // root_ = insert(root_, value, inserted_node, newly_inserted);
-    // if(newly_inserted) size_++;
-    // std::cout<<root_<<inserted_node<<std::endl;
-    // std::cout<<"After insertion "<<root_->key_<<" "<<inserted_node->key_<<std::endl;
-    // return make_iterator(inserted_node);
-    // return std::make_pair(make_iterator(inserted_node), newly_inserted);
-    // auto start = root_;
-    // if ( start == nullptr ) {
-    //     std::cout << "Adding node at the end" << std::endl;
-    //     return std::make_pair( make_node( key ), true );
-    // }
-
-    // size_t size = size_;
-    // node_pointer parent;
-
-    // while ( size ) {
-    //     int comp = compare_( key, node_key_ );
-    //     if ( comp < 0 ) {
-
-    //     } else if ( comp > 0 ) {
-
-    //     } else {
-    //         return std::make_pair( node, false );
-    //     }
-    // }
-    // = compare_( key, node->key_ );
-
-    // if ( cmp < 0 ) {
-    //     node->left_ = insert( node->left_, key, inserted_node, newly_inserted );
-    // } else if ( cmp > 0 ) {
-    //     node->right_ = insert( node->right_, key, inserted_node, newly_inserted );
-    // } else if ( cmp == 0 ) {
-    //     newly_inserted = false;
-    //     inserted_node  = node;
-    // }
-    // return std::make_pair( node, inserted_node );
-    // }
 
     void clear() noexcept;
 
@@ -132,7 +98,11 @@ public:
      *  Default constructor
      */
     explicit bst( const Compare_& comp = Compare_(), const Allocator_& alloc = Allocator_() )
-        : compare_( comp ), allocator_( alloc ), size_( 0 ), root_( nullptr ){};
+        : compare_( comp ), allocator_( alloc ), size_( 0 ), header_() {
+        this->header_->left_   = this->header_;
+        this->header_->right_  = this->header_;
+        this->header_->parent_ = nullptr;
+    };
 
     // Destructors
     ~bst() {
@@ -150,7 +120,7 @@ private:
     const allocator_type allocator_;
     size_t size_;
 
-    node_pointer root_;
+    node_pointer header_;
     const node_pointer end_ = nullptr;
 
     static constexpr size_t ONE_NODE = 1;
@@ -197,42 +167,28 @@ private:
         return new node_type( key );
     }
 
-    // std::tuple<node_pointer, bool> insert(
-    //     node_pointer& node, const_reference key) {
-    //     auto start = node;
-    //     if(start == nullptr) {
-    //         std::cout<<"Adding node at the end"<<std::endl;
-    //         return std::make_pair(make_node(key), true);
-    //     }
+    node_pointer& root() {
+        return this->header_.parent_;
+    }
 
-    //     size_t size = size_;
-    //     node_pointer parent;
+    const_node_pointer& root() const {
+        return this->header_.parent_;
+    }
 
-    //     while(size) {
-    //         int comp = compare_(key, node_key_);
-    //         if(comp < 0) {
+    node_pointer leftmost() {
+        return this->header_.left_;
+    }
 
-    //         }
-    //         else if(comp > 0) {
+    const_node_pointer leftmost() const {
+        return this->header_.left_;
+    }
 
-    //         }
-    //         else {
-    //             return std::make_pair(node, false);
-    //         }
-    //     }
-    //     = compare_(key, node->key_);
+    node_pointer rightmost() {
+        return this->header_.right_;
+    }
 
-    //     if(cmp < 0) {
-    //         node->left_ = insert(node->left_, key, inserted_node, newly_inserted);
-    //     }
-    //     else if(cmp > 0) {
-    //         node->right_ = insert(node->right_, key, inserted_node, newly_inserted);
-    //     }
-    //     else if(cmp == 0) {
-    //         newly_inserted = false;
-    //         inserted_node = node;
-    //     }
-    //     return std::make_pair(node, inserted_node);
-    // }
-};
+    const_node_pointer rightmost() const {
+        return this->header_.right_;
+    }
+}; // class bst
 } // namespace tlib
