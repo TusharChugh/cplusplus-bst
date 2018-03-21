@@ -12,18 +12,17 @@ TEST( BST, DEFAULT_CONSTRUCTOR_EMPTY_TEST ) {
     ASSERT_TRUE( input.empty() );
 }
 
-// TEST(BST, CONSTRUCTIONS_CONFIG1_TEST) {
-//     tlib::bst<int> input;
-//     std::cout<<"Test insertion "<<*(input.insert(20))<<std::endl;
-//     std::cout<<"Test insertion "<<*(input.insert(10))<<std::endl;
-//     std::cout<<"Test insertion "<<*(input.insert(15))<<std::endl;
-//     // std::cout<<"Test insertion "<<*(input.insert(20).first)<<std::endl;
-//     // std::cout<<"Test insertion "<<*(input.insert(10).first)<<std::endl;
-//     // std::cout<<"Test insertion "<<*(input.insert(15).first)<<std::endl;
-//     auto key = input.begin();
-//     std::cout<<*key<<" "<<std::endl;
-//     std::cout<<*(++key)<<" "<<std::endl;
-//     std::cout<<*(++key)<<" "<<std::endl;
-//     ASSERT_FALSE(input.empty());
-//     ASSERT_EQ(3, input.size());
-// }
+TEST( BST, CONSTRUCTIONS_CONFIG1_TEST ) {
+    tlib::bst<int> input;
+    auto one = ( input.insert( 20 ).first );
+    std::cout << "Test insertion " << *one << std::endl;
+    std::cout << *( input.begin() ) << " " << *input.end() << std::endl;
+    std::cout << "Test insertion " << *( input.insert( 10 ).first ) << std::endl;
+    std::cout << *input.begin() << " " << *input.end() << std::endl;
+    std::cout << "Test insertion " << *( input.insert( 15 ).first ) << std::endl;
+
+    std::cout << *input.begin() << " " << *input.end() << std::endl;
+
+    ASSERT_FALSE( input.empty() );
+    ASSERT_EQ( 3, input.size() );
+}

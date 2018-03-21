@@ -1,34 +1,42 @@
 #pragma once
 
 #include <iterator>
-#include "bst_node.h"
 
 namespace tlib {
+// forward declare bst class and bst iterator class
+template<class Key_, class Compare_, class Allocator_> class bst;
 /**
  * @brief
  *
- * @tparam bst_t_
+ * @tparam bst_node_t_
  * @tparam Compare_
  */
-template<class bst_t_, class pointer_, class reference_>
+template<class bst_node_t_>
 class bst_iterator
-    : public std::iterator<const std::bidirectional_iterator_tag, typename bst_t_::key_type,
-                           typename bst_t_::difference_type, pointer_, reference_> {
+    : public std::iterator<const std::bidirectional_iterator_tag, typename bst_node_t_::key_type> {
+    using key_type       = typename bst_node_t_::key_type;
+    using allocator_type = typename bst_node_t_::allocator_type;
+    using key_compare    = typename bst_node_t_::key_compare;
+    using value_compare  = typename bst_node_t_::key_compare;
+    using node_type      = typename bst_node_t_::node_type;
+    using node_pointer   = typename bst_node_t_::node_pointer;
+
+    friend class tlib::bst<key_type, key_compare, allocator_type>;
 
 public:
     using iterator_category = const std::bidirectional_iterator_tag;
-    using value_type        = typename bst_t_::value_type;
-    using difference_type   = typename bst_t_::difference_type;
-    using pointer           = typename bst_t_::pointer;
-    using const_pointer     = typename bst_t_::const_pointer;
-    using reference         = typename bst_t_::reference;
-    using const_reference   = typename bst_t_::const_reference;
+    using value_type        = typename bst_node_t_::value_type;
+    using pointer           = typename bst_node_t_::pointer;
+    using const_pointer     = typename bst_node_t_::const_pointer;
+    using reference         = typename bst_node_t_::reference;
+    using const_reference   = typename bst_node_t_::const_reference;
 
     bool operator==( const bst_iterator& rhs ) const;
 
     bool operator!=( const bst_iterator& rhs ) const;
 
     const_reference operator*() const {
+        std::cout << "Iterator here " << pointee_->key_ << std::endl;
         return ( *pointee_ ).key_;
     }
 
@@ -62,21 +70,18 @@ public:
 
     bst_iterator operator--( int );
 
+    bst_iterator();
+    ~bst_iterator() = default;
+
 private:
-    using key_type       = typename bst_t_::key_type;
-    using allocator_type = typename bst_t_::allocator_type;
-    using key_compare    = typename bst_t_::key_compare;
-    using value_compare  = typename bst_t_::value_compare;
-    using node_pointer   = typename bst_t_::pointer;
-
-    friend class tlib::bst<key_type, key_compare, allocator_type>;
-
     node_pointer pointee_;
 
     /**
      * @brief Construct a new bst iterator object
      *
      */
-    explicit bst_iterator( const node_pointer& pointee ) : pointee_( pointee ) {}
+    explicit bst_iterator( const node_pointer& pointee ) : pointee_( pointee ) {
+        std::cout << "iterator constructor " << pointee_->key_ << std::endl;
+    }
 };
 } // namespace tlib
