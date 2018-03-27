@@ -64,9 +64,11 @@ public:
     LIBCPP_INLINE_VISIBILITY_
     explicit bst_node( const_reference key, pointer left = nullptr, pointer right = nullptr,
                        pointer parent = nullptr )
-        : key_( key ), left_( left ), right_( right ), parent_( parent ) {
-        std::cout << "In node constructor" << std::endl;
-    };
+        : key_( key ), left_( left ), right_( right ), parent_( parent ) {}
+
+    ~bst_node() {
+        std::cout << "destructor " << std::endl;
+    }
 
     // Node defination
     const_reference key_;

@@ -88,48 +88,14 @@ public:
     // Modifiers
     // Insert elements. Make this as const iterator??
     std::pair<iterator, bool> insert( const value_type& value ) {
-        std::cout << "trying to insert " << std::endl;
-        node_pointer_ root_         = ( *header_ ).parent_;
-        node_holder_ h_             = make_node_holder( value );
-        node_pointer_ inserted_node = h_.release();
-        assert( h_.get() == nullptr );
-        std::cout << "holder value " << std::endl;
-        std::cout << inserted_node->key_ << std::endl;
-        if ( root_ == nullptr ) {
-            std::cout << root_ << " " << inserted_node->key_ << std::endl;
-            ( *header_ ).parent_   = inserted_node;
-            ( *header_ ).left_     = inserted_node;
-            ( *header_ ).right_    = inserted_node;
-            inserted_node->parent_ = header_;
-            size_++;
-            return std::make_pair( make_iterator( inserted_node ), true );
-        }
+        return insert_unique( value );
+    }
 
-        std::cout << "root " << root_->key_ << std::endl;
-
-        node_pointer_ parent = root_;
-        node_pointer_ x      = root_;
-
-        while ( x != nullptr ) {
-            parent = static_cast<node_pointer_>( x );
-            if ( compare_( value, x->key_ ) )
-                x = static_cast<node_pointer_>( x->left_ );
-            else if ( compare_( x->key_, value ) )
-                x = static_cast<node_pointer_>( x->right_ );
-            else
-                return std::make_pair( make_iterator( x ), false );
-
-            std::cout << "Done with loop" << std::endl;
-        }
-
-        if ( compare_( value, parent->key_ ) ) {
-            parent->left_ = inserted_node;
-            std::cout << "inserted at left " << inserted_node << std::endl;
-        } else
-            parent->right_ = inserted_node;
-        size_++;
-        std::cout << "hello" << std::endl;
-        return std::make_pair( make_iterator( inserted_node ), true );
+    // Modifiers
+    // Insert elements. Make this as const iterator??
+    std::pair<iterator, bool> insert( value_type&& value ) {
+        std::cout << "Am I called?? ";
+        return insert_unique( std::move( value ) );
     }
 
     void clear() noexcept;
@@ -166,23 +132,10 @@ public:
      *  Default constructor
      */
     explicit bst( const Compare_& comp = Compare_(), const Allocator_& alloc = Allocator_() )
-        : compare_( comp ), nat_( alloc ), size_( 0 ) {
-        header_                = make_node_holder( value_type{} ).release();
-        this->header_->left_   = this->header_;
-        this->header_->right_  = this->header_;
-        this->header_->parent_ = nullptr;
-        node_pointer_ p        = make_node_holder( 10 ).release();
-        std::cout << "test " << p << " " << p->key_ << std::endl;
-        node_pointer_ p1 = make_node_holder( 5 ).release();
-        std::cout << "test " << p1 << " " << p->key_ << std::endl;
-        node_pointer_ p2 = make_node_holder( 15 ).release();
-        std::cout << "test " << p2 << " " << p2->key_ << std::endl;
-        node_pointer_ p3 = make_node_holder( 25 ).release();
-        std::cout << "test " << p3 << " " << p3->key_ << std::endl;
-        node_pointer_ p4 = make_node_holder( 35 ).release();
-        std::cout << "test " << p4 << " " << p4->key_ << std::endl;
-        // std::cout << "test " << make_node_holder( 30 ).release()->key_ << std::endl;
-        // std::cout << "test " << make_node_holder( 40 ).release()->key_ << std::endl;
+        : compare_( comp ), nat_( node_allocator_( alloc ) ), header_( make_node( value_type{} ) ),
+          size_( 0 ) {
+        this->header_->left_  = this->header_;
+        this->header_->right_ = this->header_;
     };
 
     // // Destructors
@@ -222,30 +175,94 @@ private:
     //     return nh_;
     // }
 
+    node_pointer_ make_node( const_reference key ) {
+        node_allocator_& na_ = get_allocator();
+        node_pointer_ np_    = na_.allocate( 1 );
+        na_.construct( np_, key );
+        return np_;
+    }
+
     node_holder_ make_node_holder( const_reference key ) {
         node_allocator_& na_ = get_allocator();
-        node_holder_ nh_( node_traits_::allocate( na_, 1 ), node_destructor_( na_ ) );
-        try {
-            node_traits_::construct( na_, std::addressof( nh_->key_ ), key );
-            nh_.get_deleter().value_constructed_ = true;
-        } catch ( ... ) {
-            // delete_node( temp_ );
-            // TODO: Through exception
-        }
+        node_pointer_ np_    = na_.allocate( 1 );
+        na_.construct( np_, key );
+        node_holder_ nh_( np_, node_destructor_( na_ ) );
+        nh_.get_deleter().value_constructed_ = true;
         return std::move( nh_ );
     }
 
-    // node_pointer_ make_node( const_reference key, node_pointer_ left, node_pointer_ right,
-    //                         node_pointer_ parent ) {
-    //     node_pointer_ temp_ = make_node();
-    //     try {
-    //         node_allocator_.construct( temp_, key, left, right, parent );
-    //     } catch ( ... ) {
-    //         delete_node( temp_ );
-    //         // TODO: Through exception
-    //     }
-    //     return new node_type( key );
-    // }
+    // Modifiers
+    // Insert elements. Make this as const iterator??
+    std::pair<iterator, bool> insert_unique( const value_type& value ) {
+        node_pointer_ root_         = ( *header_ ).parent_;
+        node_holder_ h_             = make_node_holder( value );
+        node_pointer_ inserted_node = h_.release();
+
+        if ( root_ == nullptr ) {
+            ( *header_ ).parent_ = inserted_node;
+            ( *header_ ).left_   = inserted_node;
+            ( *header_ ).right_  = inserted_node;
+            // inserted_node->parent_ = header_;
+            size_++;
+            return std::make_pair( make_iterator( inserted_node ), true );
+        }
+
+        node_pointer_ parent = root_;
+        node_pointer_ x      = root_;
+
+        while ( x != nullptr ) {
+            parent = static_cast<node_pointer_>( x );
+            if ( compare_( value, x->key_ ) )
+                x = static_cast<node_pointer_>( x->left_ );
+            else if ( compare_( x->key_, value ) )
+                x = static_cast<node_pointer_>( x->right_ );
+            else
+                return std::make_pair( make_iterator( x ), false );
+        }
+
+        if ( compare_( value, parent->key_ ) ) {
+            parent->left_ = inserted_node;
+        } else
+            parent->right_ = inserted_node;
+        size_++;
+        return std::make_pair( make_iterator( inserted_node ), true );
+    }
+
+    template<typename Vp_> std::pair<iterator, bool> insert_unique( Vp_&& value ) {
+        node_holder_ h_ = make_node_holder( std::forward<Vp_>( value ) );
+        std::cout << "serious";
+        node_pointer_ root_         = ( *header_ ).parent_;
+        node_pointer_ inserted_node = h_.release();
+
+        if ( root_ == nullptr ) {
+            ( *header_ ).parent_ = inserted_node;
+            ( *header_ ).left_   = inserted_node;
+            ( *header_ ).right_  = inserted_node;
+            // inserted_node->parent_ = header_;
+            size_++;
+            return std::make_pair( make_iterator( inserted_node ), true );
+        }
+
+        node_pointer_ parent = root_;
+        node_pointer_ x      = root_;
+
+        while ( x != nullptr ) {
+            parent = static_cast<node_pointer_>( x );
+            if ( compare_( value, x->key_ ) )
+                x = static_cast<node_pointer_>( x->left_ );
+            else if ( compare_( x->key_, value ) )
+                x = static_cast<node_pointer_>( x->right_ );
+            else
+                return std::make_pair( make_iterator( x ), false );
+        }
+
+        if ( compare_( value, parent->key_ ) ) {
+            parent->left_ = inserted_node;
+        } else
+            parent->right_ = inserted_node;
+        size_++;
+        return std::make_pair( make_iterator( inserted_node ), true );
+    }
 
     node_pointer_& root() {
         return this->header_->parent_;
