@@ -290,11 +290,11 @@ private:
         node_pointer_ x      = root_;
 
         while ( x != nullptr ) {
-            parent = static_cast<node_pointer_>( x );
+            parent = x;
             if ( compare_( inserted_node->key_, x->key_ ) )
-                x = static_cast<node_pointer_>( x->left_ );
+                x = x->left_;
             else if ( compare_( x->key_, inserted_node->key_ ) )
-                x = static_cast<node_pointer_>( x->right_ );
+                x = x->right_;
             else
                 return std::make_pair( make_iterator( x ), false );
         }
@@ -334,11 +334,11 @@ private:
         node_pointer_ x      = root_;
 
         while ( x != nullptr ) {
-            parent = static_cast<node_pointer_>( x );
+            parent = x;
             if ( compare_( inserted_node->key_, x->key_ ) )
-                x = static_cast<node_pointer_>( x->left_ );
+                x = x->left_;
             else if ( compare_( x->key_, inserted_node->key_ ) )
-                x = static_cast<node_pointer_>( x->right_ );
+                x = x->right_;
             else
                 return std::make_pair( make_iterator( x ), false );
         }
