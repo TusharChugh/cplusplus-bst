@@ -55,16 +55,15 @@ public:
     // Iterators
     // Begin
     iterator begin() noexcept {
-        // std::cout << "called begin " << ( *header_ ).left_->key_ << std::endl;
-        return make_iterator( header_->parent_ );
+        return make_iterator( header_->left_ );
     }
 
     const_iterator begin() const noexcept {
-        return make_iterator( static_cast<const_node_pointer_>( header_->parent_ ) );
+        return make_iterator( static_cast<const_node_pointer_>( header_->left_ ) );
     }
 
     const_iterator cbegin() const noexcept {
-        return make_iterator( static_cast<const_node_pointer_>( header_->parent_ ) );
+        return make_iterator( static_cast<const_node_pointer_>( header_->left_ ) );
     }
 
     // End
@@ -188,8 +187,8 @@ private:
     // Modifiers
     // Insert elements. Make this as const iterator??
     std::pair<iterator, bool> insert_unique( const value_type& value ) {
+        node_holder_ h_             = make_node_holder( std::move( value ) );
         node_pointer_ root_         = ( *header_ ).parent_;
-        node_holder_ h_             = make_node_holder( value );
         node_pointer_ inserted_node = h_.release();
 
         if ( root_ == nullptr ) {
@@ -206,18 +205,26 @@ private:
 
         while ( x != nullptr ) {
             parent = static_cast<node_pointer_>( x );
-            if ( compare_( value, x->key_ ) )
+            if ( compare_( inserted_node->key_, x->key_ ) )
                 x = static_cast<node_pointer_>( x->left_ );
-            else if ( compare_( x->key_, value ) )
+            else if ( compare_( x->key_, inserted_node->key_ ) )
                 x = static_cast<node_pointer_>( x->right_ );
             else
                 return std::make_pair( make_iterator( x ), false );
         }
 
-        if ( compare_( value, parent->key_ ) ) {
+        if ( compare_( inserted_node->key_, parent->key_ ) ) {
             parent->left_ = inserted_node;
         } else
             parent->right_ = inserted_node;
+
+        // Update leftmost and right most
+        if ( compare_( inserted_node->key_, leftmost()->key_ ) ) ( *header_ ).left_ = inserted_node;
+        if ( compare_( inserted_node->key_, rightmost()->key_ ) ) {
+            ( *header_ ).right_   = inserted_node;
+            inserted_node->right_ = header_;
+        }
+
         size_++;
         return std::make_pair( make_iterator( inserted_node ), true );
     }
@@ -256,8 +263,10 @@ private:
 
         // Update leftmost and right most
         if ( compare_( inserted_node->key_, leftmost()->key_ ) ) ( *header_ ).left_ = inserted_node;
-        if ( compare_( inserted_node->key_, rightmost()->key_ ) )
-            ( *header_ ).right_ = inserted_node;
+        if ( compare_( inserted_node->key_, rightmost()->key_ ) ) {
+            ( *header_ ).right_   = inserted_node;
+            inserted_node->right_ = header_;
+        }
 
         size_++;
         return std::make_pair( make_iterator( inserted_node ), true );
