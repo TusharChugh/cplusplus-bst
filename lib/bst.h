@@ -178,6 +178,7 @@ public:
      * @return iterator iterator to the replaced element for the first
      */
     iterator erase( const_iterator first, const_iterator last );
+
     size_type erase( const key_type& key );
 
     // Lookup
@@ -365,7 +366,7 @@ private:
     }
 
     const_node_pointer_& root() const {
-        return this->header_->parent_;
+        return static_cast<const_node_pointer_>( this->header_->parent_ );
     }
 
     node_pointer_& leftmost() noexcept {

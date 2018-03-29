@@ -87,6 +87,7 @@ https://stackoverflow.com/questions/2762568/c-c-include-file-order-best-practice
 5. copy, move, swap constructors 
 6. operators like ==
 7. Destruct the elements
+8. Test and fix const iterators
 
  ## References
 1. Apache implementation of red black tree: https://github.com/apache/stdcxx/blob/trunk/include/rw/_tree.h
