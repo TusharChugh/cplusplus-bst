@@ -192,10 +192,10 @@ private:
         node_pointer_ inserted_node = h_.release();
 
         if ( root_ == nullptr ) {
-            ( *header_ ).parent_ = inserted_node;
-            ( *header_ ).left_   = inserted_node;
-            ( *header_ ).right_  = inserted_node;
-            // inserted_node->parent_ = header_;
+            ( *header_ ).parent_   = inserted_node;
+            ( *header_ ).left_     = inserted_node;
+            ( *header_ ).right_    = inserted_node;
+            inserted_node->parent_ = header_;
             size_++;
             return std::make_pair( make_iterator( inserted_node ), true );
         }
@@ -217,10 +217,11 @@ private:
             parent->left_ = inserted_node;
         } else
             parent->right_ = inserted_node;
-
+        inserted_node->parent_ = parent;
         // Update leftmost and right most
         if ( compare_( inserted_node->key_, leftmost()->key_ ) ) ( *header_ ).left_ = inserted_node;
-        if ( compare_( inserted_node->key_, rightmost()->key_ ) ) {
+        if ( !( compare_( inserted_node->key_, rightmost()->key_ ) ) &&
+             !( compare_( rightmost()->key_, inserted_node->key_ ) ) ) {
             ( *header_ ).right_   = inserted_node;
             inserted_node->right_ = header_;
         }
@@ -235,10 +236,10 @@ private:
         node_pointer_ inserted_node = h_.release();
 
         if ( root_ == nullptr ) {
-            ( *header_ ).parent_ = inserted_node;
-            ( *header_ ).left_   = inserted_node;
-            ( *header_ ).right_  = inserted_node;
-            // inserted_node->parent_ = header_;
+            ( *header_ ).parent_   = inserted_node;
+            ( *header_ ).left_     = inserted_node;
+            ( *header_ ).right_    = inserted_node;
+            inserted_node->parent_ = header_;
             size_++;
             return std::make_pair( make_iterator( inserted_node ), true );
         }
@@ -256,14 +257,16 @@ private:
                 return std::make_pair( make_iterator( x ), false );
         }
 
-        if ( compare_( inserted_node->key_, parent->key_ ) ) {
+        if ( compare_( inserted_node->key_, parent->key_ ) )
             parent->left_ = inserted_node;
-        } else
-            parent->right_ = inserted_node;
 
+        else
+            parent->right_ = inserted_node;
+        inserted_node->parent_ = parent;
         // Update leftmost and right most
         if ( compare_( inserted_node->key_, leftmost()->key_ ) ) ( *header_ ).left_ = inserted_node;
-        if ( compare_( inserted_node->key_, rightmost()->key_ ) ) {
+        if ( !( compare_( inserted_node->key_, rightmost()->key_ ) ) &&
+             !( compare_( rightmost()->key_, inserted_node->key_ ) ) ) {
             ( *header_ ).right_   = inserted_node;
             inserted_node->right_ = header_;
         }

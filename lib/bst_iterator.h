@@ -42,11 +42,13 @@ private:
     }
 
     node_pointer_ tree_next( node_pointer_ x_ ) noexcept {
-        // Case: if there are elements in the right of the node
+        // Case 1: if there are elements in the right subtree
         // then the successor is the left most element of the right subtree
         if ( x_->right_ != nullptr ) return tree_min( x_->right_ );
+        // Case 2: if there is no element in the right  and this node is parent's right child
         while ( !is_left_child( x_ ) )
             x_ = x_->parent_;
+        // Case 3: if there is no element in the right  and this node is parent's left child
         return x_->parent_;
     }
 
