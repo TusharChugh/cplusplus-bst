@@ -68,11 +68,11 @@ public:
      * @return const_iterator constant iterator to the first element
      */
     const_iterator begin() const noexcept {
-        return make_iterator( static_cast<const_node_pointer_>( header_->left_ ) );
+        return make_iterator( header_->left_ );
     }
 
     const_iterator cbegin() const noexcept {
-        return make_iterator( static_cast<const_node_pointer_>( header_->left_ ) );
+        return make_iterator( header_->left_ );
     }
 
     /**
@@ -90,7 +90,7 @@ public:
      * @return const_iterator constant iterator to the end element
      */
     const_iterator end() const noexcept {
-        return make_iterator( static_cast<const_node_pointer_>( header_ ) );
+        return make_iterator( header_ );
     }
 
     /**
@@ -99,7 +99,7 @@ public:
      * @return const_iterator constant iterator to the end element
      */
     const_iterator cend() const noexcept {
-        return make_iterator( static_cast<const_node_pointer_>( header_ ) );
+        return make_iterator( header_ );
     }
 
     // Capacity
