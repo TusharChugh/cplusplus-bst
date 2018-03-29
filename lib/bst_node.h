@@ -21,10 +21,20 @@ private:
 public:
     bool value_constructed_;
 
+    /**
+     * @brief constructor for the bode destructor
+     *
+     * @param node_allocator node allocator rebinded from type Key
+     */
     LIBCPP_INLINE_VISIBILITY_
     explicit bst_node_destructor( allocator_type& node_allocator ) noexcept
         : node_allocator_( node_allocator ), value_constructed_( false ) {}
 
+    /**
+     * @brief operator to be called for destroying/deallocating the node
+     *
+     * @param p_ pointer to the node
+     */
     LIBCPP_INLINE_VISIBILITY_
     void operator()( pointer p_ ) noexcept {
         if ( value_constructed_ )
@@ -61,13 +71,10 @@ public:
      * @param right pointer to the right of the node
      * @param parent pointer to the parent of the node
      */
-    LIBCPP_INLINE_VISIBILITY_ explicit bst_node( const_reference key, pointer left = nullptr,
-                                                 pointer right = nullptr, pointer parent = nullptr )
+    LIBCPP_INLINE_VISIBILITY_
+    explicit bst_node( const_reference key, pointer left = nullptr, pointer right = nullptr,
+                       pointer parent = nullptr )
         : key_( key ), left_( left ), right_( right ), parent_( parent ) {}
-
-    ~bst_node() {
-        std::cout << "destructor " << std::endl;
-    }
 
     // Node defination
     const_reference key_;

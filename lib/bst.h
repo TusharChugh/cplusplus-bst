@@ -53,11 +53,20 @@ public:
     using node_holder_     = std::unique_ptr<node_, node_destructor_>;
 
     // Iterators
-    // Begin
+    /**
+     * @brief Returns an iterator to the first element(smallest value)
+     *
+     * @return iterator iterator to the first element
+     */
     iterator begin() noexcept {
         return make_iterator( header_->left_ );
     }
 
+    /**
+     * @brief Returns an constant iterator to the first element(smallest value)
+     *
+     * @return const_iterator constant iterator to the first element
+     */
     const_iterator begin() const noexcept {
         return make_iterator( static_cast<const_node_pointer_>( header_->left_ ) );
     }
@@ -66,29 +75,61 @@ public:
         return make_iterator( static_cast<const_node_pointer_>( header_->left_ ) );
     }
 
-    // End
+    /**
+     * @brief Returns an iterator to the end element. End is after the last element
+     *
+     * @return iterator iterator to the end element
+     */
     iterator end() noexcept {
         return make_iterator( header_ );
     }
 
+    /**
+     * @brief Returns an constant iterator to the end element. End is after the last element
+     *
+     * @return const_iterator constant iterator to the end element
+     */
     const_iterator end() const noexcept {
         return make_iterator( static_cast<const_node_pointer_>( header_ ) );
     }
 
+    /**
+     * @brief Returns an constant iterator to the end element. End is after the last element
+     *
+     * @return const_iterator constant iterator to the end element
+     */
     const_iterator cend() const noexcept {
         return make_iterator( static_cast<const_node_pointer_>( header_ ) );
     }
 
     // Capacity
+    /**
+     * @brief checks whether the container is empty
+     *
+     * @return true if container is empty
+     * @return false if container is not empty
+     */
     inline bool empty() const noexcept {
         return size_ == 0;
     }
+
+    /**
+     * @brief returns the number of elements
+     *
+     * @return size_t number of elements
+     */
     inline size_t size() const noexcept {
         return size_;
     }
 
     // Modifiers
     // Insert elements. lvalue reference (copy lvalues)
+    /**
+     * @brief Insert elements
+     *
+     * @param value value to be inserted
+     * @return std::pair<iterator, bool> iterator to the inserted element, true if unique element
+     */
     std::pair<iterator, bool> insert( const value_type& value ) {
         return insert_unique( value );
     }
@@ -103,31 +144,75 @@ public:
     // this is why we need to turn it back to rvalue
     // need to call std::move in all the functions where this value is cascaded to preserve the
     // rvalueness
+    /**
+     * @brief Insert elements
+     *
+     * @param value value to be inserted
+     * @return std::pair<iterator, bool> iterator to the inserted element, true if unique element
+     */
     std::pair<iterator, bool> insert( value_type&& value ) {
         // std::cout << "rvalue insert " << std::endl;
         return insert_unique( std::move( value ) );
     }
 
+    /**
+     * @brief clears the contents
+     *
+     */
     void clear() noexcept;
 
     // erase elements
+    /**
+     * @brief erases element at the given position
+     *
+     * @param pos iterator to the given position
+     * @return iterator
+     */
     iterator erase( const_iterator pos );
+
+    /**
+     * @brief erarses element in the range of positions
+     *
+     * @param first iterator to the first elment
+     * @param last iterator to the last element
+     * @return iterator iterator to the replaced element for the first
+     */
     iterator erase( const_iterator first, const_iterator last );
     size_type erase( const key_type& key );
 
     // Lookup
-    // Find key
+    /**
+     * @brief Find the given key
+     *
+     * @param x key to be find
+     * @return iterator itertor to the found key
+     */
     iterator find( key_type const& x ) const;
 
     // Observers
+    /**
+     * @brief returns the function that compares keys
+     *
+     * @return key_compare function that compares keys
+     */
     key_compare key_comp() const {
         return compare_;
     }
 
+    /**
+     * @brief returns the function that compares keys in objects of type value_type;
+     *
+     * @return key_compare
+     */
     key_compare value_comp() const {
         return compare_;
     }
 
+    /**
+     * @brief Get the associated allocator
+     *
+     * @return node_allocator_& allocator
+     */
     node_allocator_& get_allocator() noexcept {
         return nat_;
     }
