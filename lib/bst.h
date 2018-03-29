@@ -56,25 +56,28 @@ public:
     // Begin
     iterator begin() noexcept {
         // std::cout << "called begin " << ( *header_ ).left_->key_ << std::endl;
-        // return make_iterator( ( *header_ ).left_ );
+        return make_iterator( header_->parent_ );
     }
 
     const_iterator begin() const noexcept {
-        // return make_iterator( leftmost() );
+        return make_iterator( static_cast<const_node_pointer_>( header_->parent_ ) );
     }
+
     const_iterator cbegin() const noexcept {
-        // return make_iterator( leftmost() );
+        return make_iterator( static_cast<const_node_pointer_>( header_->parent_ ) );
     }
 
     // End
     iterator end() noexcept {
-        // return make_iterator( header_ );
+        return make_iterator( header_ );
     }
+
     const_iterator end() const noexcept {
-        // return make_iterator( rightmost() );
+        return make_iterator( static_cast<const_node_pointer_>( header_ ) );
     }
+
     const_iterator cend() const noexcept {
-        // return make_iterator( rightmost() );
+        return make_iterator( static_cast<const_node_pointer_>( header_ ) );
     }
 
     // Capacity
@@ -86,15 +89,23 @@ public:
     }
 
     // Modifiers
-    // Insert elements. Make this as const iterator??
+    // Insert elements. lvalue reference (copy lvalues)
     std::pair<iterator, bool> insert( const value_type& value ) {
         return insert_unique( value );
     }
 
     // Modifiers
-    // Insert elements. Make this as const iterator??
+    // Insert elements.Rvalue reference. no type deduction
+    // Not a universal reference
+    // move rvalues
+    // emplace backs has type deduction for args
+    // value is an lvalue as it has a name
+    // type of value is rvalue reference to value_type(T)
+    // this is why we need to turn it back to rvalue
+    // need to call std::move in all the functions where this value is cascaded to preserve the
+    // rvalueness
     std::pair<iterator, bool> insert( value_type&& value ) {
-        std::cout << "Am I called?? ";
+        // std::cout << "rvalue insert " << std::endl;
         return insert_unique( std::move( value ) );
     }
 
@@ -122,32 +133,20 @@ public:
         return nat_;
     }
 
-    // allocator_type get_allocator() const {
-    //     return *static_cast<const Node_Allocator_*>( &this );
-    // }
-
     // Constructors
     /**
      * @brief Construct a new bst object
      *  Default constructor
      */
     explicit bst( const Compare_& comp = Compare_(), const Allocator_& alloc = Allocator_() )
-        : compare_( comp ), nat_( node_allocator_( alloc ) ), header_( make_node( value_type{} ) ),
-          size_( 0 ) {
+        : compare_( comp ), nat_( node_allocator_( alloc ) ), size_( 0 ),
+          header_( make_node_holder( value_type{} ).release() ) {
         this->header_->left_  = this->header_;
         this->header_->right_ = this->header_;
     };
 
-    // // Destructors
-    // ~bst() {
-    //     // node_pointer_ left = root_left;
-    //     // node_pointer_ left = root_right;
-    //     // while(root) {
-    //     //     delete root;
-    //     // }
-    //     // TODO
-    //     // Can't use the default constructor. Need to delete the pointers recursively
-    // }
+    // Destructors
+    ~bst() = default;
 
 private:
     const key_compare compare_;
@@ -169,24 +168,19 @@ private:
         // node_allocator_.deallocate( node, ONE_NODE );
     }
 
-    // Node_Holder_ make_node_holder() {
-    //     Node_Allocator_& na_ = get_allocator();
-    //     Node_Holder_ nh_(Node_Allocator_::allocator_traits::allocate(na_, 1), na_);
-    //     return nh_;
-    // }
-
-    node_pointer_ make_node( const_reference key ) {
+    node_holder_ make_node_holder( const value_type& value ) {
         node_allocator_& na_ = get_allocator();
-        node_pointer_ np_    = na_.allocate( 1 );
-        na_.construct( np_, key );
-        return np_;
+        node_holder_ nh_( na_.allocate( 1 ), node_destructor_( na_ ) );
+        node_traits_::construct( na_, nh_.get(), value );
+        nh_.get_deleter().value_constructed_ = true;
+        return std::move( nh_ );
     }
 
-    node_holder_ make_node_holder( const_reference key ) {
+    node_holder_ make_node_holder( value_type&& value ) {
+        // std::cout << "args holders " << std::endl;
         node_allocator_& na_ = get_allocator();
-        node_pointer_ np_    = na_.allocate( 1 );
-        na_.construct( np_, key );
-        node_holder_ nh_( np_, node_destructor_( na_ ) );
+        node_holder_ nh_( na_.allocate( 1 ), node_destructor_( na_ ) );
+        node_traits_::construct( na_, nh_.get(), std::forward<value_type>( value ) );
         nh_.get_deleter().value_constructed_ = true;
         return std::move( nh_ );
     }
@@ -229,8 +223,7 @@ private:
     }
 
     template<typename Vp_> std::pair<iterator, bool> insert_unique( Vp_&& value ) {
-        node_holder_ h_ = make_node_holder( std::forward<Vp_>( value ) );
-        std::cout << "serious";
+        node_holder_ h_             = make_node_holder( std::move( value ) );
         node_pointer_ root_         = ( *header_ ).parent_;
         node_pointer_ inserted_node = h_.release();
 
@@ -248,18 +241,24 @@ private:
 
         while ( x != nullptr ) {
             parent = static_cast<node_pointer_>( x );
-            if ( compare_( value, x->key_ ) )
+            if ( compare_( inserted_node->key_, x->key_ ) )
                 x = static_cast<node_pointer_>( x->left_ );
-            else if ( compare_( x->key_, value ) )
+            else if ( compare_( x->key_, inserted_node->key_ ) )
                 x = static_cast<node_pointer_>( x->right_ );
             else
                 return std::make_pair( make_iterator( x ), false );
         }
 
-        if ( compare_( value, parent->key_ ) ) {
+        if ( compare_( inserted_node->key_, parent->key_ ) ) {
             parent->left_ = inserted_node;
         } else
             parent->right_ = inserted_node;
+
+        // Update leftmost and right most
+        if ( compare_( inserted_node->key_, leftmost()->key_ ) ) ( *header_ ).left_ = inserted_node;
+        if ( compare_( inserted_node->key_, rightmost()->key_ ) )
+            ( *header_ ).right_ = inserted_node;
+
         size_++;
         return std::make_pair( make_iterator( inserted_node ), true );
     }
@@ -272,19 +271,19 @@ private:
         return this->header_->parent_;
     }
 
-    node_pointer_ leftmost() {
+    node_pointer_& leftmost() noexcept {
         return this->header_->left_;
     }
 
-    const_node_pointer_ leftmost() const {
+    const_node_pointer_ leftmost() const noexcept {
         return this->header_->left_;
     }
 
-    node_pointer_ rightmost() {
+    node_pointer_& rightmost() noexcept {
         return this->header_->right_;
     }
 
-    const_node_pointer_ rightmost() const {
+    const_node_pointer_ rightmost() const noexcept {
         return this->header_->right_;
     }
 }; // class bst

@@ -61,9 +61,8 @@ public:
      * @param right pointer to the right of the node
      * @param parent pointer to the parent of the node
      */
-    LIBCPP_INLINE_VISIBILITY_
-    explicit bst_node( const_reference key, pointer left = nullptr, pointer right = nullptr,
-                       pointer parent = nullptr )
+    LIBCPP_INLINE_VISIBILITY_ explicit bst_node( const_reference key, pointer left = nullptr,
+                                                 pointer right = nullptr, pointer parent = nullptr )
         : key_( key ), left_( left ), right_( right ), parent_( parent ) {}
 
     ~bst_node() {

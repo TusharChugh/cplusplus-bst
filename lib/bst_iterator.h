@@ -22,10 +22,6 @@ public:
     using value_type        = typename bst_node_t_::value_type;
     using const_reference   = typename bst_node_t_::const_reference;
 
-    bool operator==( const bst_iterator& rhs ) const;
-
-    bool operator!=( const bst_iterator& rhs ) const;
-
     const_reference operator*() const {
         return pointee_->key_;
     }
@@ -58,11 +54,23 @@ public:
         return *this;
     }
 
-    bst_iterator operator++( int );
+    bst_iterator operator++( int ) {
+        auto temp_ = *this;
+        ++( *this );
+        return temp_;
+    }
 
     bst_iterator operator--();
 
     bst_iterator operator--( int );
+
+    bool operator==( const bst_iterator& rhs ) const {
+        return pointee_ == rhs.pointee_;
+    }
+
+    bool operator!=( const bst_iterator& rhs ) const {
+        return pointee_ != rhs.pointee_;
+    }
 
     bst_iterator();
     ~bst_iterator() = default;

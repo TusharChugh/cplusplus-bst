@@ -35,8 +35,9 @@
  ## Notes:
  1. C++ set implementation uses red-black trees
  2. https://stackoverflow.com/questions/2762568/c-c-include-file-order-best-practices
-
+3. 
  missing PIMPL idiom
+4. order of calling the constructors matters and the performance related to it
 
  ## References
 1. Apache implementation of red black tree: https://github.com/apache/stdcxx/blob/trunk/include/rw/_tree.h
@@ -57,3 +58,15 @@ But we don't need compare type here
 2. Option 2:  
 template<class Key_, class VoidPtr_>
 and then rebind void pointer to the node pointer  
+
+## More on rebind:
+rebind_alloc<T>	Alloc::rebind<T>::other if present, otherwise Alloc<T, Args> if this Alloc is Alloc<U, Args>
+http://en.cppreference.com/w/cpp/memory/allocator_traits
+
+## Passing lvalue vs passing r value
+
+https://stackoverflow.com/questions/17980570/pass-by-reference-constant-reference-rvalue-reference-or-constant-rvalue-refe
+
+https://stackoverflow.com/questions/16216043/passing-r-value-as-non-const-reference-vs-warning-c4239
+
+https://channel9.msdn.com/Shows/Going+Deep/Cpp-and-Beyond-2012-Scott-Meyers-Universal-References-in-Cpp11
