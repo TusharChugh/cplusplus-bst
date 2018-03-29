@@ -28,7 +28,9 @@ https://docs.bazel.build/versions/master/test-encyclopedia.html
 ## Design choices
 ### 1. BST Node defination
 #### Option 1:   
-```template<class Key_, class Compare_ = std::less<Key_>, class Allocator_ = std::allocator<Key_>> ```
+```
+template<class Key_, class Compare_ = std::less<Key_>, class Allocator_ = std::allocator<Key_>> 
+```
 In this case we'll need to declare pointer to node like :
 ```
 using node_pointer    = bst_node<key_type, key_compare, allocator_type>*;
@@ -48,7 +50,9 @@ I went ahead with the option 2 way as used in the llvm implementation. C++17 has
 
 ### 3. Rebind:
 1. The allocator templete parameter is the allocator for the type Key_ but we need to allocate the node. So, we rebind the allocator the the node.
-rebind_alloc<T>	Alloc::rebind<T>::other if present, otherwise Alloc<T, Args> if this Alloc is Alloc<U, Args>
+'''
+rebind_alloc<T>	Alloc::rebind<T>::other
+ if present, otherwise Alloc<T, Args> if this Alloc is Alloc<U, Args>'''
 http://en.cppreference.com/w/cpp/memory/allocator_traits
 
 ### 4. Passing lvalue vs passing r value
